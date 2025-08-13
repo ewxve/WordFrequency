@@ -1,5 +1,8 @@
 import json
 import math
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.nonparametric.smoothers_lowess import lowess
 
 base_scoring_dict = {
     "3": 1.0,
@@ -68,13 +71,44 @@ def average_groups(grouped_data: dict):
         averaged_grouped_data[keys_list[i-1]] = sum(current_grouped_data) / len(current_grouped_data)
     return averaged_grouped_data
 
+def sort_and_smooth_data(test_data: dict):
+    x = np.array(list(test_data.keys()), dtype=float)
+    y = np.array(list(test_data.values()), dtype=float)
+
+    smoothed_data = lowess(
+        y,
+        x,
+        frac=0.4,
+        it=3,
+        return_sorted=True
+    )
+    return smoothed_data
+
+def plot_data_fitted(smoothed: np.ndarray, raw: dict | None = None):
+    if raw is not None:
+        rx = np.array(list(raw.keys()), dtype=float)
+        ry = np.array(list(raw.values()), dtype=float)
+        plt.scatter(rx, ry, s=25, label="Raw", alpha=0.8)
+
+    plt.plot(smoothed[:, 0], smoothed[:, 1], color="green", label="LOWESS (robust)")
+
+    x_min = 1
+    x_max = float(np.max(smoothed[:, 0]))
+    plt.xlim(x_min, x_max)
+    plt.ylim(0.0, 1.0)
+
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
 def console_test():
     word_interval = int(input("Desired interval between tested words: "))
     word_count = int(input("Number of words to test: "))
     group_size = int(input("How many words do you want within each frequency group: "))
     test_results = test_words(word_interval, word_count)
-    grouped_data = group_words(test_results, group_size)
-    averaged_grouped_data = average_groups(grouped_data)
-    print(averaged_grouped_data)
+    #grouped_data = group_words(test_results, group_size)
+    #averaged_grouped_data = average_groups(grouped_data)
+    plot_data_fitted(sort_and_smooth_data(test_results), test_results)
 
 console_test()
+quit()
