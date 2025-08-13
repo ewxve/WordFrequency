@@ -10,20 +10,14 @@ base_scoring_dict = {
     "1": 0.0,
 }
 
-with open('words_by_frequency.json', 'r') as f:
-    frequency_data = json.load(f)
+with open('words_by_frequency.json', 'r', encoding='utf-8') as f:
+    wordlist = json.load(f)
 
-with open('word_to_index.json', 'r', encoding='utf-8') as f:
-    get_index_dict = json.load(f)
-
+ranked_words = [w for w, r in sorted(wordlist.items(), key=lambda kv: kv[1])]
 
 def fetch_list(interval: int, iterations: int):
     test_words_list = []
-    max_iters = min(iterations, len(frequency_data) // max(1, interval))
-    if max_iters == 0:
-        return test_words_list
-    for i in range(1, iterations+1):
-        test_words_list.append(get_word_at_index(interval*i))
+    max_iters = min(iterations, len(ranked_words) // max(1, interval))
     for i in range(1, max_iters + 1):
         w = get_word_at_index(interval * i)
         if w is not None:
@@ -32,10 +26,10 @@ def fetch_list(interval: int, iterations: int):
 
 
 def get_word_at_index(index: int):
-    if 1 <= index <= len(frequency_data):
-        return frequency_data[index - 1][0]
-    else:
-        return None
+    if 1 <= index <= len(ranked_words):
+        return ranked_words[index - 1]
+    return None
+
 
 def test_words(word_frequency_initial_interval: int, initial_word_count: int):
     fetched_words_list = fetch_list(word_frequency_initial_interval, initial_word_count)
@@ -46,7 +40,7 @@ def test_words(word_frequency_initial_interval: int, initial_word_count: int):
         while True:
             user_answer = input("Do you know this word: " + word + "\n1: I don't know it   2: I recognize it, but can't define it   3: I know it\n")
             if user_answer == "1" or user_answer == "2" or  user_answer == "3":
-                tested_words_scoring[get_index_dict[word]] = base_scoring_dict[user_answer]
+                tested_words_scoring[wordlist[word]] = base_scoring_dict[user_answer]
                 break
     return tested_words_scoring
 
@@ -74,12 +68,12 @@ def group_words(user_scores: dict, group_size: int):
     return grouped_data
 
 def average_groups(grouped_data: dict):
-    averaged_grouped_data = {}
-    for i in range(1, len(grouped_data)+1):
-        keys_list = list(grouped_data.keys())
-        current_grouped_data = grouped_data[keys_list[i-1]]
-        averaged_grouped_data[keys_list[i-1]] = sum(current_grouped_data) / len(current_grouped_data)
-    return averaged_grouped_data
+    averaged = {}
+    for k, vals in grouped_data.items():
+        if vals:
+            averaged[k] = sum(vals) / len(vals)
+    return averaged
+
 
 def sort_and_smooth_data(test_data: dict):
     x = np.array(list(test_data.keys()), dtype=float)

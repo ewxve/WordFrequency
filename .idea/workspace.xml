@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="036dacd2-bbf7-4881-a6a8-e76afc4847a1" name="Changes" comment="Cleaned the word lists to remove all artifacts, such as numbers, and various other morphemes that don't fit this test's definition/application of &quot;words&quot;">
+    <list default="true" id="036dacd2-bbf7-4881-a6a8-e76afc4847a1" name="Changes" comment="Fixed an error I encountered where the test would overshoot the list. I added two fixes to get_word_at_index and fetch_list, then put a safeguard in test_words just for best practice">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/word_to_index.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/words_by_frequency.json" beforeDir="false" afterPath="$PROJECT_DIR$/words_by_frequency.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,17 +48,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.data cleaning.executor": "Run",
-    "Python.test.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "settings.editor.selected.configurable": "preferences.lookFeel"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.data cleaning.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\User\Documents\GitHub\WordFrequency" />
@@ -109,7 +111,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755060814216</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Fixed an error I encountered where the test would overshoot the list. I added two fixes to get_word_at_index and fetch_list, then put a safeguard in test_words just for best practice">
+      <option name="closed" value="true" />
+      <created>1755061967715</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1755061967715</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -117,6 +127,7 @@
     <MESSAGE value="Fleshed out the basis for the testing (added grouping functionality- so we can examine different sections of the data as well as a function to find the average knowledge ranking of each of those frequency groups) and created a simple &quot;Console Test&quot; that I can use in development" />
     <MESSAGE value="Added a function to find the best fit line for the points based on the user's input (using robust LOWESS) and another function which graphs both the raw data and the smoothed line. This will allow for easier analysis of data from many different individuals (eventually)" />
     <MESSAGE value="Cleaned the word lists to remove all artifacts, such as numbers, and various other morphemes that don't fit this test's definition/application of &quot;words&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cleaned the word lists to remove all artifacts, such as numbers, and various other morphemes that don't fit this test's definition/application of &quot;words&quot;" />
+    <MESSAGE value="Fixed an error I encountered where the test would overshoot the list. I added two fixes to get_word_at_index and fetch_list, then put a safeguard in test_words just for best practice" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed an error I encountered where the test would overshoot the list. I added two fixes to get_word_at_index and fetch_list, then put a safeguard in test_words just for best practice" />
   </component>
 </project>
