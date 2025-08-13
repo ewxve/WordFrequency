@@ -19,12 +19,20 @@ with open('word_to_index.json', 'r', encoding='utf-8') as f:
 
 def fetch_list(interval: int, iterations: int):
     test_words_list = []
+    max_iters = min(iterations, len(frequency_data) // max(1, interval))
+    if max_iters == 0:
+        return test_words_list
     for i in range(1, iterations+1):
         test_words_list.append(get_word_at_index(interval*i))
+    for i in range(1, max_iters + 1):
+        w = get_word_at_index(interval * i)
+        if w is not None:
+            test_words_list.append(w)
     return test_words_list
 
+
 def get_word_at_index(index: int):
-    if index < len(frequency_data):
+    if 1 <= index <= len(frequency_data):
         return frequency_data[index - 1][0]
     else:
         return None
@@ -33,6 +41,8 @@ def test_words(word_frequency_initial_interval: int, initial_word_count: int):
     fetched_words_list = fetch_list(word_frequency_initial_interval, initial_word_count)
     tested_words_scoring = {}
     for word in fetched_words_list:
+        if word is None:
+            continue
         while True:
             user_answer = input("Do you know this word: " + word + "\n1: I don't know it   2: I recognize it, but can't define it   3: I know it\n")
             if user_answer == "1" or user_answer == "2" or  user_answer == "3":
