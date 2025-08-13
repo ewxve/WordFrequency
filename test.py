@@ -10,7 +10,7 @@ base_scoring_dict = {
     "1": 0.0,
 }
 
-with open('wordfreq-en-25000-log.json', 'r') as f:
+with open('words_by_frequency.json', 'r') as f:
     frequency_data = json.load(f)
 
 with open('word_to_index.json', 'r', encoding='utf-8') as f:
@@ -104,10 +104,7 @@ def plot_data_fitted(smoothed: np.ndarray, raw: dict | None = None):
 def console_test():
     word_interval = int(input("Desired interval between tested words: "))
     word_count = int(input("Number of words to test: "))
-    group_size = int(input("How many words do you want within each frequency group: "))
     test_results = test_words(word_interval, word_count)
-    #grouped_data = group_words(test_results, group_size)
-    #averaged_grouped_data = average_groups(grouped_data)
     plot_data_fitted(sort_and_smooth_data(test_results), test_results)
 
 console_test()
