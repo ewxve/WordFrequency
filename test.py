@@ -1,12 +1,13 @@
 import json
-import math
 import numpy as np
 import matplotlib.pyplot as plt
 from statsmodels.nonparametric.smoothers_lowess import lowess
 
+# Scoring note (Bjork & Bjork, 1992): don't conflate retrieval vs storage strength.
+# 0.3 keeps storage strength > 0 without flattening the curve.
 base_scoring_dict = {
     "3": 1.0,
-    "2": 0.3, ### It's important for us not to treat retrieval strength and storage strength (Bjork & Bjork, 1992) as the same thing. In this case, both are low, but storage strength is nonzero. Using a number like 0.1 risks exaggerating a falloff in knowledge, while a higher number like 0.5 might flatten the curve too much
+    "2": 0.3,  ### It's important for us not to treat retrieval strength and storage strength (Bjork & Bjork, 1992) as the same thing. In this case, both are low, but storage strength is nonzero. Using a number like 0.1 risks exaggerating a falloff in knowledge, while a higher number like 0.5 might flatten the curve too much
     "1": 0.0,
 }
 
@@ -15,14 +16,9 @@ with open('words_by_frequency.json', 'r', encoding='utf-8') as f:
 
 ranked_words = [w for w, r in sorted(wordlist.items(), key=lambda kv: kv[1])]
 
-def fetch_list(interval: int, iterations: int):
-    test_words_list = []
-    max_iters = min(iterations, len(ranked_words) // max(1, interval))
-    for i in range(1, max_iters + 1):
-        w = get_word_at_index(interval * i)
-        if w is not None:
-            test_words_list.append(w)
-    return test_words_list
+word_history = set()  ### A list of all words that have already been given to the tester
+
+word_scores_list = {}
 
 
 def get_word_at_index(index: int):
@@ -31,48 +27,15 @@ def get_word_at_index(index: int):
     return None
 
 
-def test_words(word_frequency_initial_interval: int, initial_word_count: int):
-    fetched_words_list = fetch_list(word_frequency_initial_interval, initial_word_count)
-    tested_words_scoring = {}
-    for word in fetched_words_list:
-        if word is None:
-            continue
-        while True:
-            user_answer = input("Do you know this word: " + word + "\n1: I don't know it   2: I recognize it, but can't define it   3: I know it\n")
-            if user_answer == "1" or user_answer == "2" or  user_answer == "3":
-                tested_words_scoring[wordlist[word]] = base_scoring_dict[user_answer]
-                break
-    return tested_words_scoring
-
-def group_words(user_scores: dict, group_size: int):
-    #for key, value in user_scores.items():
-    grouped_data = {}
-
-    frequency_keys = list(user_scores.keys())
-    frequency_keys.sort()
-    highest_tested_word = frequency_keys[-1]
-
-    number_of_groups = math.ceil(highest_tested_word / group_size) ### Decide the number of groups by dividing the rank of the highest word scored by the desired group size, then rounding up so all words will be included
-    for current_group in range(1, number_of_groups+1):
-        current_group_list = []
-
-        starting_number = group_size * (current_group - 1) ### This keeps track of what number is the bottom margin for the group we are currently computing
-        current_group_name = f"Group [{starting_number + 1}-{starting_number + group_size}]"
-        for i in range(1, group_size+1):
-            try:
-                current_group_list.append(user_scores[starting_number + i])
-            except KeyError:
-                pass
-
-        grouped_data[current_group_name] = current_group_list
-    return grouped_data
-
-def average_groups(grouped_data: dict):
-    averaged = {}
-    for k, vals in grouped_data.items():
-        if vals:
-            averaged[k] = sum(vals) / len(vals)
-    return averaged
+def ask_word(word: str):
+    while True:
+        user_answer = input(
+            f"Do you know this word: {word}\n"
+            "1: I don't know it   2: I recognize it, but can't define it   3: I know it\n"
+        ).strip()
+        if user_answer in ("1", "2", "3"):
+            return base_scoring_dict[user_answer]
+        print("Please enter 1, 2, or 3.")
 
 
 def sort_and_smooth_data(test_data: dict):
@@ -87,6 +50,7 @@ def sort_and_smooth_data(test_data: dict):
         return_sorted=True
     )
     return smoothed_data
+
 
 def plot_data_fitted(smoothed: np.ndarray, raw: dict | None = None):
     if raw is not None:
@@ -105,11 +69,100 @@ def plot_data_fitted(smoothed: np.ndarray, raw: dict | None = None):
     plt.tight_layout()
     plt.show()
 
-def console_test():
-    word_interval = int(input("Desired interval between tested words: "))
-    word_count = int(input("Number of words to test: "))
-    test_results = test_words(word_interval, word_count)
-    plot_data_fitted(sort_and_smooth_data(test_results), test_results)
 
-console_test()
+def find_falloff():
+    global word_history
+    chunk_scores = {}
+    chunk_list = [(1, 1000)]
+    current_working_range = chunk_list[-1]
+
+    ### FIRST PASS AT INTERVALS OF 1,000 WORDS
+    list_to_test = list_words_within_span(current_working_range, (current_working_range[1] - current_working_range[0]) // 10)
+    current_chunk_mean = test_list(list_to_test)
+    chunk_scores[current_working_range] = current_chunk_mean
+
+    while chunk_scores[chunk_list[-1]] >= 0.25:  ### Until we've found all test-worthy chunks of 1000
+        chunk_list.append((chunk_list[-1][1] + 1, chunk_list[-1][1] + 1000))
+        current_working_range = chunk_list[-1]
+        width = current_working_range[1] - current_working_range[0]
+        if chunk_scores[chunk_list[-2]] >= 0.95:
+            step = width // 3  ### Speed up the testing significantly when the tester performed almost perfectly well on the last chunk
+        elif chunk_scores[chunk_list[-2]] >= 0.8:
+            step = width // 5  ### Speed up the testing when the tester performed incredibly well on the last chunk
+        elif chunk_scores[chunk_list[-2]] <= 0.4:
+            step = width // 15 ### Slow down the testing when the tester performed questionably on the last chunk
+        else:
+            step = width // 10
+        list_to_test = list_words_within_span(current_working_range, step)
+        current_chunk_mean = test_list(list_to_test)
+        chunk_scores[current_working_range] = current_chunk_mean
+
+    ### Then we do one more, to watch it get as close to zero as possible:
+    chunk_list.append((chunk_list[-1][1] + 1, chunk_list[-1][1] + 1000))
+    current_working_range = chunk_list[-1]
+    list_to_test = list_words_within_span(current_working_range, (current_working_range[1] - current_working_range[0]) // 10)
+    current_chunk_mean = test_list(list_to_test)
+    chunk_scores[current_working_range] = current_chunk_mean
+
+    median_chunk = ()
+    median_chunk_score = min(chunk_scores.values(), key=lambda x: abs(x - 0.5))
+
+    for key, value in chunk_scores.items():
+        if value == median_chunk_score:
+            median_chunk = key
+            break
+
+    if median_chunk != chunk_list[0] and median_chunk != chunk_list[-1]:
+        chunk_list = [(median_chunk[0] - 1000, median_chunk[0] - 1), median_chunk, (median_chunk[1] + 1, median_chunk[1] + 1000)]  ### The median chunk along with the chunk to its immediate left and immediate right
+    elif median_chunk == chunk_list[0] and median_chunk != chunk_list[-1]:
+        chunk_list = [median_chunk, (median_chunk[1] + 1, median_chunk[1] + 1000)]  ### The median chunk along with the chunk to its immediate right
+    else:
+        chunk_list = [(median_chunk[0] - 1000, median_chunk[0] - 1), median_chunk]
+
+    for chunk in chunk_list:
+        current_working_range = chunk
+        list_to_test = list_words_within_span(current_working_range, (current_working_range[1] - current_working_range[0]) // 35)  ### This time we want to get 35 words instead of 10
+        current_chunk_mean = test_list(list_to_test)
+        chunk_scores[current_working_range] = current_chunk_mean
+
+
+def test_list(word_list: list):
+    global word_history
+    global word_scores_list
+    current_chunk_scores = []
+    for word in word_list:
+        word_score = ask_word(word)
+        word_scores_list[wordlist[word]] = word_score
+        current_chunk_scores.append(word_score)
+        word_history.add(word)
+    current_chunk_mean = np.mean(current_chunk_scores)
+    return current_chunk_mean
+
+
+def list_words_within_span(span: tuple, interval: int):
+    global word_history
+    words_in_span = []
+    current_index = max(1, span[0])
+    interval = max(1, int(interval))
+
+    while current_index <= span[1]:  ### Iterate and progress forward (by interval) until current index is past the ceiling of our range (we have gone through all words based on our interval)
+        pending_word = get_word_at_index(current_index)
+        if pending_word is None:
+            break
+        while pending_word in word_history:
+            rank = wordlist[pending_word]
+            next_rank = rank + 1
+            if next_rank > span[1]:  ### This would mean any other words within our span have already been tested, so we just return the function
+                return words_in_span
+            pending_word = ranked_words[next_rank - 1]
+        words_in_span.append(pending_word)
+        current_index += interval
+    return words_in_span
+
+
+def graph_data():
+    plot_data_fitted(sort_and_smooth_data(word_scores_list), word_scores_list)
+
+
+find_falloff()
 quit()
