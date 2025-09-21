@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="036dacd2-bbf7-4881-a6a8-e76afc4847a1" name="Changes" comment="Added a new, customized word list and consolidated the program into only needing one, then did touch-ups on a few functions to match. (For example, part of fetch_list was redundant)">
-      <change afterPath="$PROJECT_DIR$/reorder list.py" afterDir="false" />
+    <list default="true" id="036dacd2-bbf7-4881-a6a8-e76afc4847a1" name="Changes" comment="Added a script to reorder word list .JSONs after I delete entries. Did a full overhaul of the main test.py script, since I changed the workflow of the program. This included removing unused code and cleaning up the existing functions.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/words_by_frequency.json" beforeDir="false" afterPath="$PROJECT_DIR$/words_by_frequency.json" afterDir="false" />
@@ -48,18 +47,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.data cleaning.executor": "Run",
-    "Python.reorder list.executor": "Run",
-    "Python.test.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "settings.editor.selected.configurable": "preferences.lookFeel"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.data cleaning.executor&quot;: &quot;Run&quot;,
+    &quot;Python.reorder list.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\User\Documents\GitHub\WordFrequency" />
@@ -128,7 +127,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755106901203</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Added a script to reorder word list .JSONs after I delete entries. Did a full overhaul of the main test.py script, since I changed the workflow of the program. This included removing unused code and cleaning up the existing functions.">
+      <option name="closed" value="true" />
+      <created>1755573100091</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1755573100091</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -138,6 +145,7 @@
     <MESSAGE value="Cleaned the word lists to remove all artifacts, such as numbers, and various other morphemes that don't fit this test's definition/application of &quot;words&quot;" />
     <MESSAGE value="Fixed an error I encountered where the test would overshoot the list. I added two fixes to get_word_at_index and fetch_list, then put a safeguard in test_words just for best practice" />
     <MESSAGE value="Added a new, customized word list and consolidated the program into only needing one, then did touch-ups on a few functions to match. (For example, part of fetch_list was redundant)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added a new, customized word list and consolidated the program into only needing one, then did touch-ups on a few functions to match. (For example, part of fetch_list was redundant)" />
+    <MESSAGE value="Added a script to reorder word list .JSONs after I delete entries. Did a full overhaul of the main test.py script, since I changed the workflow of the program. This included removing unused code and cleaning up the existing functions." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added a script to reorder word list .JSONs after I delete entries. Did a full overhaul of the main test.py script, since I changed the workflow of the program. This included removing unused code and cleaning up the existing functions." />
   </component>
 </project>
